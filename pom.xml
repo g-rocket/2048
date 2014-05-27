@@ -61,7 +61,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>net.clonecomputers.lab.starburst.Starburst</mainClass>
+              <mainClass>net.clonecomputers.lab.g2048.G2048</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>

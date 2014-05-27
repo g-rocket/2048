@@ -68,37 +68,69 @@ public class G2048 extends JPanel implements Runnable {
 		}
 	}
 	
+	private boolean canMove() {
+		for(int[] row: numbers) for(int val: row) {
+			if(val == 0) return true;
+		}
+		
+		for(int x = 0; x < numbers.length; x++) for(int y = 0; y < numbers[x].length; y++) {
+			for(Dir d: Dir.values()) {
+				if(numbers[x][y] == d.inDir(x,y,numbers)) return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean canMove(Dir d) {
+		for(int x = 0; x < numbers.length; x++) for(int y = 0; y < numbers[x].length; y++) {
+			if(numbers[x][y] != 0 && 
+					(numbers[x][y] == d.inDir(x,y,numbers) || d.inDir(x,y,numbers) == 0)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	private void move(Dir d) {
 		System.out.println("moving "+d);
 		
-		boolean moved = false;
-		List<Integer> movedPoints = new ArrayList<Integer>();
-		for(int x = 0; x < numbers.length; x++) for(int y = 0; y < numbers[x].length; y++) {
-			if(movedPoints.contains(x + y*numbers.length)) continue;
-			if(numbers[x][y] == 0) continue;
-			if(numbers[x][y] == d.inDir(x,y,numbers)) {
-				numbers[x+d.dx][y+d.dy] += numbers[x][y];
-				numbers[x][y] = 0;
-				movedPoints.add((x+d.dx) + (y+d.dy)*numbers.length);
-				moved = true;
-			} else if(d.inDir(x,y,numbers) == 0) {
-				numbers[x+d.dx][y+d.dy] = numbers[x][y];
-				numbers[x][y] = 0;
-				movedPoints.add((x+d.dx) + (y+d.dy)*numbers.length);
-				moved = true;
+		if(canMove(d)) {
+			boolean moved = true;
+			//List<Integer> movedPoints = new ArrayList<Integer>();
+			while(moved) {
+				moved = false;
+				//movedPoints.clear();
+				for(int x = 0; x < numbers.length; x++) for(int y = 0; y < numbers[x].length; y++) {
+					///if(movedPoints.contains(x + y*numbers.length)) continue;
+					if(numbers[x][y] == 0) continue;
+					if(numbers[x][y] == d.inDir(x,y,numbers)) {
+						numbers[x+d.dx][y+d.dy] += numbers[x][y];
+						numbers[x][y] = 0;
+						//movedPoints.add((x+d.dx) + (y+d.dy)*numbers.length);
+						moved = true;
+					} else if(d.inDir(x,y,numbers) == 0) {
+						numbers[x+d.dx][y+d.dy] = numbers[x][y];
+						numbers[x][y] = 0;
+						//movedPoints.add((x+d.dx) + (y+d.dy)*numbers.length);
+						moved = true;
+					}
+				}
 			}
-		}
-		if(moved) {
+			
 			int x,y;
 			do {
 				x = rand(); y = rand();
 			} while(numbers[x][y] != 0);
 			numbers[x][y] = Math.random() > .1? 2: 4;
-		} else {
-			JOptionPane.showMessageDialog(this, "You lose!");
+			
+			updateDisplay();
+			
+			if(!canMove()) {
+				JOptionPane.showMessageDialog(this, "You lose!");
+			}
 		}
-		
-		updateDisplay();
 	}
 	
 	private enum Dir {
